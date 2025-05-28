@@ -4,7 +4,7 @@
 **Course: Bayesian Machine Learning with Generative AI Applications**
 
 ## Overview
-In the age of rapid digital misinformation, particularly in politics, detecting fake news is a critical task. This project explores a Bayesian Neural Network (BNN)-based pipeline to classify political statements by truthfulness using the LIAR dataset. We utilize textual content via BERT embeddings and speaker-related metadata to build a multimodal classifier capable of not only predicting truthfulness but also quantifying uncertainty.
+In the age of rapid digital misinformation, particularly in politics, detecting fake news is a critical task. This project explores a Bayesian Neural Network (BNN)-based pipeline to classify political statements by truthfulness using the LIAR dataset. We utilize textual content via BERT embeddings and speaker-related metadata to build a multimodal classifier capable of not only predicting truthfulness but also quantifying uncertainty. We also employed Multinomial Naive Bayes, a variation of Naive Bayes classification algorithm to establish a baseline. MNB is specially designed for discrete data particularly text data and is commonly used in NLP for document classification.
 
 ---
 
@@ -22,13 +22,18 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 ### Modeling Approaches
 | Model Type                | Input Features         | Classes       | Accuracy | F1 Score |
 |--------------------------|------------------------|---------------|----------|----------|
-| Bayesian Neural Net      | BERT + Metadata        | 6-way         | 16.6%    | 16.9%    |
+| Multinomial Naive Bayes  | Vectorizer + Metadata  | Discrete      | 26.9%   | 27%       |
+| Bayesian Neural Net      | BERT + Metadata        | 6-way         | 1.6%    | 16.9%    |
 | Bayesian Neural Net      | BERT + Metadata        | Binary        | 50.0%    | 51.5%    |
 | Deterministic Model      | BERT + Metadata        | 6-way         | 27.3%    | 26.7%    |
 | Deterministic Model      | BERT + Metadata        | Binary        | 69.4%    | 54.5%    |
 
 ### Architecture Details
-
+---
+- Text Encoder: Term Frequency Inverse Document Frequency (TFIDF) vectorizer
+- Metadata Encoding: Label encoding
+- MNB Implementation: Sklearn (TfidfVectorizer + MultinomialNB)
+---
 - Text Encoder: Pre-trained [`bert-base-uncased`](https://arxiv.org/abs/1810.04805)
 - Metadata Encoding: Label encoding + MinMax scaling
 - Multimodal Fusion: Concatenation of BERT embedding and encoded metadata
@@ -41,6 +46,8 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 
 ## Key Observations
 
+- MNB model improves with increase text columns but not significantly.
+- Final MNB model combines training and validation set performs best suggesting increasing metadata improves model. 
 - Binary classification significantly outperforms 6-way classification for both BNN and deterministic models.
 - BNN underperforms in the 6-class setting, producing nearly uniform class distributions and high predictive entropy.
 - Deterministic model with frozen BERT achieved the best performance in both binary and multiclass settings.
@@ -70,6 +77,8 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 - Explore Monte Carlo Dropout as a lighter-weight Bayesian approach
 - Try tighter priors (e.g., `Normal(0, 0.1)`)
 - Investigate hierarchical BNNs or Bayesian ensembles
+- MNB is more efficient with very high text datasets with thousands of words.
+
 
 ### Data & Evaluation
 - Augment data with additional political datasets or synthetic samples
@@ -79,11 +88,12 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 ---
 
 ## Conclusion
-This project demonstrates that while Bayesian approaches offer rich uncertainty modeling, they may require more data, tighter priors, or better optimization to compete with simpler deterministic methods in terms of raw accuracy. Still, BNNs provide valuable insight into model confidence—a critical aspect in high-stakes domains like misinformation detection.
+This project demonstrates that while Bayesian approaches offer rich uncertainty modeling, they may require more data, tighter priors, or better optimization to compete with simpler deterministic methods in terms of raw accuracy. Still, BNNs provide valuable insight into model confidence—a critical aspect in high-stakes domains like misinformation detection. 
 
 ---
 
 ## Resources
 - LIAR Dataset: https://arxiv.org/abs/1705.00648v1  
 - BERT Paper: https://arxiv.org/abs/1810.04805  
-- Pyro Framework: https://pyro.ai/  
+- Pyro Framework: https://pyro.ai/
+- https://mashimo.wordpress.com/2019/07/13/classification-metrics-and-naive-bayes/
