@@ -22,7 +22,7 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 ### Modeling Approaches
 | Model Type               | Input Features         | Classes       | Accuracy | F1 Score |
 |--------------------------|------------------------|---------------|----------|----------|
-| Multinomial Naive Bayes  | Vectorizer + Metadata  | Discrete      | 26.9%    | 27%      |
+| Multinomial Naive Bayes  | Vectorizer + Metadata  | 6-way         | 26.9%    | 27%      |
 | Bayesian Neural Net      | BERT + Metadata        | 6-way         | 1.6%     | 16.9%    |
 | Bayesian Neural Net      | BERT + Metadata        | Binary        | 54.3%    | 55.1%    |
 | Deterministic Model      | BERT + Metadata        | 6-way         | 27.3%    | 26.7%    |
@@ -85,13 +85,21 @@ Confidence:
 
 - There is a more pronounced long-tail towards high confidence, demonstrating that a pre-trained guide makes the model more confident in its prediction overall.
 
-Entropy: High across most samples.
+Entropy:
 
 | Predictive Entropy Distribution                                                           | Predictive Entropy Distribution (with Pre-trained Guide)                                  |
 |-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
 | ![image](https://github.com/user-attachments/assets/581a8602-933e-48d1-a37d-05ec62a5dd8a) | ![image](https://github.com/user-attachments/assets/9571e447-eab2-434e-97b3-2fe452462382) | 
-  
-- Interpretation: Model learned to “be uncertain”—valuable for abstaining from ambiguous cases but detrimental to accuracy without calibration.
+
+- The entropy spread is wider, demonstrating that the model has more instances where it is confident in its classification, whereas without the pre-trained guide it is almost always unsure. 
+
+Variance:
+
+| Predictive Variance Across Samples                                                        | Predictive Entropy Distribution (with Pre-trained Guide)                                  |
+|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| ![image](https://github.com/user-attachments/assets/b1030837-fc72-4248-bae6-32f6de9fb215) | ![image](https://github.com/user-attachments/assets/f103f2d3-3b44-4bad-aeb0-2eddec0acfc1) |
+
+- The pre-trained model collapsed all of the predictive variance, which is a drawback since it no longer entertains parameter uncertainty and relies on the pre-trained guide as the "correct" approximation.
 
 ---
 
