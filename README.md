@@ -52,7 +52,7 @@ Bayesian Neural Net:
 - Hidden Layers: `128` -> `256`
 - ClippedAdam Optimizer: learning rate = `1e-3` -> `5e-4`
 
-Model Improvement: Accuracy +4.28%, F1 Score +3.6%
+*Model Improvement: Accuracy +4.28%, F1 Score +3.6%*
 
 ### Pre-training Model Guide using Deterministic Model
 
@@ -61,7 +61,7 @@ Guide: `AutoDiagonalNormal`
 - Initially, this guide randomizes the initial posterior mean approximations, which may lead to approximations far from the true posterior.
 - Using a deterministic model to pre-train the weights and biases will give the Guide a better approximation of the posterior, which can improve model performance.
 
-Model Improvement: Accuracy +14.7%, F1 Score +11.6%
+*Model Improvement (compared to Finetuned BNN): Accuracy +14.7%, F1 Score +11.6%*
 
 ---
 
@@ -71,14 +71,26 @@ Model Improvement: Accuracy +14.7%, F1 Score +11.6%
 - Final MNB model combines training and validation set performs best suggesting increasing metadata improves model. 
 - Binary classification significantly outperforms 6-way classification for both BNN and deterministic models.
 - BNN underperforms in the 6-class setting, producing nearly uniform class distributions and high predictive entropy.
-- BNN shows high uncertainty even in validation
+- BNN shows high uncertainty even in validation.
 
 ---
 
 ## Uncertainty Estimation (BNN)
 
-- Confidence: Most predictions were close to 1/6 probability, indicating the model wasn’t confident.
-- Entropy & Variance: High across most samples.
+Confidence: 
+
+| Prediction Confidence Distribution                                                        | Prediction Confidence Distribution (with Pre-trained Guide)                               |
+|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| ![image](https://github.com/user-attachments/assets/fe5a262a-230d-4465-99cb-35bdeb6f0b2e) | ![image](https://github.com/user-attachments/assets/f15ef9e0-dd73-4412-9eb8-a4b968d5e226) |
+
+- There is a more pronounced long-tail towards high confidence, demonstrating that a pre-trained guide makes the model more confident in its prediction overall.
+
+Entropy: High across most samples.
+
+| Predictive Entropy Distribution                                                           | Predictive Entropy Distribution (with Pre-trained Guide)                                  |
+|-------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------|
+| ![image](https://github.com/user-attachments/assets/581a8602-933e-48d1-a37d-05ec62a5dd8a) | ![image](https://github.com/user-attachments/assets/9571e447-eab2-434e-97b3-2fe452462382) | 
+  
 - Interpretation: Model learned to “be uncertain”—valuable for abstaining from ambiguous cases but detrimental to accuracy without calibration.
 
 ---
