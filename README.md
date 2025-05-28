@@ -20,20 +20,23 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 ## Methodology
 
 ### Modeling Approaches
-| Model Type                | Input Features         | Classes       | Accuracy | F1 Score |
+| Model Type               | Input Features         | Classes       | Accuracy | F1 Score |
 |--------------------------|------------------------|---------------|----------|----------|
-| Multinomial Naive Bayes  | Vectorizer + Metadata  | Discrete      | 26.9%   | 27%       |
-| Bayesian Neural Net      | BERT + Metadata        | 6-way         | 1.6%    | 16.9%    |
-| Bayesian Neural Net      | BERT + Metadata        | Binary        | 50.0%    | 51.5%    |
+| Multinomial Naive Bayes  | Vectorizer + Metadata  | Discrete      | 26.9%    | 27%      |
+| Bayesian Neural Net      | BERT + Metadata        | 6-way         | 1.6%     | 16.9%    |
+| Bayesian Neural Net      | BERT + Metadata        | Binary        | 54.3%    | 55.1%    |
 | Deterministic Model      | BERT + Metadata        | 6-way         | 27.3%    | 26.7%    |
 | Deterministic Model      | BERT + Metadata        | Binary        | 69.4%    | 54.5%    |
+| BNN + Pretrained Guide   | BERT + Metadata        | Binary        | 69%      | 66.7%    |
 
 ### Architecture Details
----
+
+Multinomial Naive Bayes:
 - Text Encoder: Term Frequency Inverse Document Frequency (TFIDF) vectorizer
 - Metadata Encoding: Label encoding
 - MNB Implementation: Sklearn (TfidfVectorizer + MultinomialNB)
----
+
+Bayesian Neural Net:
 - Text Encoder: Pre-trained [`bert-base-uncased`](https://arxiv.org/abs/1810.04805)
 - Metadata Encoding: Label encoding + MinMax scaling
 - Multimodal Fusion: Concatenation of BERT embedding and encoded metadata
@@ -41,6 +44,24 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
   - Pyro + PyTorch  
   - Priors: `Normal(0, 0.5)` on all weights and biases  
   - Inference: Stochastic Variational Inference (SVI)
+
+### BNN Model Finetuning
+
+- Priors: `Normal(0, 0.5)` -> `Normal(0., 0.05)`
+- DataLoader: `batch_size=8` -> `batch_size=12`
+- Hidden Layers: `128` -> `256`
+- ClippedAdam Optimizer: learning rate = `1e-3` -> `5e-4`
+
+Model Improvement: Accuracy +4.28%, F1 Score +3.6%
+
+### Pre-training Model Guide using Deterministic Model
+
+Guide: `AutoDiagonalNormal`
+- Represents each parameter's posterior as an independent normal distribution
+- Initially, this guide randomizes the initial posterior mean approximations, which may lead to approximations far from the true posterior.
+- Using a deterministic model to pre-train the weights and biases will give the Guide a better approximation of the posterior, which can improve model performance.
+
+Model Improvement: Accuracy +14.7%, F1 Score +11.6%
 
 ---
 
@@ -50,8 +71,7 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 - Final MNB model combines training and validation set performs best suggesting increasing metadata improves model. 
 - Binary classification significantly outperforms 6-way classification for both BNN and deterministic models.
 - BNN underperforms in the 6-class setting, producing nearly uniform class distributions and high predictive entropy.
-- Deterministic model with frozen BERT achieved the best performance in both binary and multiclass settings.
-- BNN shows high uncertainty even in validation, suggesting poor class separation or over-regularization due to wide priors.
+- BNN shows high uncertainty even in validation
 
 ---
 
@@ -75,10 +95,8 @@ In the age of rapid digital misinformation, particularly in politics, detecting 
 ### Modeling Improvements
 - Unfreeze BERT layers for domain adaptation
 - Explore Monte Carlo Dropout as a lighter-weight Bayesian approach
-- Try tighter priors (e.g., `Normal(0, 0.1)`)
 - Investigate hierarchical BNNs or Bayesian ensembles
 - MNB is more efficient with very high text datasets with thousands of words.
-
 
 ### Data & Evaluation
 - Augment data with additional political datasets or synthetic samples
